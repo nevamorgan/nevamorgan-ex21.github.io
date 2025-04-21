@@ -1,11 +1,136 @@
 ---
-title: "nevamorgan-ex21.github.io"
+title: "ESS330 Daily Assignment 21"
+
+author: "Neva Morgan"
+
+date: last-modified
+
+subtitle: "Lecture 21: Introduction to Time Series Data in 'R'"
 ---
 
-This is a Quarto website.
+# **Objective:**
+### In this activity, you will download streamflow data from the Cache la Poudre River (USGS site 06752260) and analyze it using a few time series methods.
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+## Setting Up:
 
 ```{r}
-1 + 1
+
+library(zoo)
+library(timeSeries) 
+# For some reason the ts package wouldn't download due to it being out of date or either my RStudio is out of date?
+library(xts)
+library(tidyverse)
+library(lubridate)
+library(tidymodels)
+library(ggplot2)
+library(tsibble)
+library(feasts)
+library(dplyr)
+
 ```
+
+### First, use this code to download the data from the USGS site.
+```{r}
+library(dataRetrieval)
+
+# Example: Cache la Poudre River at Mouth (USGS site 06752260)
+poudre_flow <- readNWISdv(siteNumber = "06752260",   # Download data from USGS for site 06752260
+                          parameterCd = "00060",     # Parameter code 00060 = discharge in cfs)
+                          startDate = "2013-01-01",  # Set the start date
+                          endDate = "2023-12-31") |> # Set the end date
+  renameNWISColumns() |> # Rename columns to standard names (e.g., "Flow","Date")
+  mutate(Date = yearmonth(Date)) |> # Convert daily Date values into a year-month format (e.g., "2023 Jan")
+  group_by(Date) |> # Group the data by the new monthly Date
+  summarise(Flow = mean(Flow)) # Calculate the average daily flow for each month
+
+```
+
+
+## Assignment:
+
+### *1. Convert to tsibble*
+
+#### Use as_tsibble() to convert the data.frame into a tsibble object. This will allow you to use the feast functions for time series analysis.
+
+```{r}
+#| label: Converting to a tsibble object
+
+pf_tbl <- as_tsibble(poudre_flow)
+head(pf_tbl)
+
+```
+
+
+
+### *2. Plotting the time series*
+
+#### Use ggplot to plot the time series data. Animate this plot with plotly
+
+```{r}
+#| label: Plotting the Time Series
+
+#Setting up for Plotting
+
+library(plotly)
+ 
+pf_plot <- pf_tbl |>
+  autoplot() +
+  geom_line() +
+  labs(title = "Interactive Poudre Flow Time Series",
+       x = "Date",
+       y = "Flow",
+       subtitle = "ESS330 A-21 | Neva Morgan")
+
+
+ggplotly(pf_plot)
+```
+
+
+### *3. Subseries*
+
+#### Use gg_subseries to visualize the seasonal patterns in the data. This will help you identify any trends or seasonal cycles in the streamflow data.
+
+```{r}
+# Load 'feasts' package before running:
+
+gg_subseries(pf_tbl) +
+  labs(title = "Monthly Poudre River Flow Patterns",
+       x = "Date",
+       y = "Flow",
+       subtitle = "ESS330 A21 | Neva Morgan") +
+  theme_minimal()
+
+```
+
+#### Describe what you see in the plot. How are “seasons” defined in this plot? What do you think the “subseries” represent?
+
+After plotting using the gg_subseries, the monthly flow rate for the Poudre River, appears to be at a higher level during May and June months, with an occasional increase of flow during April or September. 
+
+Seasons within this plot are defined by the months that are correlated with similar flow rate measurements to one another, the larger increae of flow could represent the end of spring moving into summer months (April - September). 
+
+From what we've learned from class, "subseries" are represented by the different years within the months of the data, showing how flow has changed from each month with multiple years being compared to one another.
+
+
+### *4. Decompose*
+
+#### Use the model(STL(...)) pattern to decompose the time series data into its components: trend, seasonality, and residuals. Chose a window that you feel is most appropriate to this data…
+
+```{r}
+
+```
+
+
+#### Describe what you see in the plot. How do the components change over time? What do you think the trend and seasonal components represent?
+
+
+## **Submission:**
+
+Upload a rendered qmd file to the course website. Make sure to include your code and any plots you created.
+
+This should be an HTML file with self-contained: true.
+
+It should not point to a local host, and must be the physical file.
+
+Make sure to include your code and any plots you created and that the outputs render as you expect.
+
+

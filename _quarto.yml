@@ -3,7 +3,7 @@ project:
   output-dir: docs
 
 website:
-  title: "nevamorgan-ex21.github.io"
+  title: "Neva Morgan | Daily Assignment 21"
   navbar:
     left:
       - href: index.qmd
@@ -12,11 +12,7 @@ website:
 
 format:
   html:
-    theme:
-      - cosmo
-      - brand
-    css: styles.css
-    toc: true
+    self-contained: true
 
 editor: visual
 
