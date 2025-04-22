@@ -117,10 +117,30 @@ From what we've learned from class, "subseries" are represented by the different
 
 ```{r}
 
+# Making the Decomposition model
+pf_decomp <- pf_tbl |>
+  model(STL(Flow ~ season(window = "periodic"))) |>
+  components()
+
+# Visualizing with autoplot
+autoplot(pf_decomp) +
+  labs(title = "STL Decomposition of Poudre River Flow", 
+       y = "Flow") +
+  theme_minimal()
+
+
+ggpubr::ggdensity(pf_decomp$remainder, main = "Residual Component")
+
+
+shapiro.test(pf_decomp$remainder)
 ```
 
 
 #### Describe what you see in the plot. How do the components change over time? What do you think the trend and seasonal components represent?
+
+After running a few extra tests to understand how the flow of the Poudre River has changed from 2013 to 2023, The window that showed the most alarming change for me at least was the Residual window. From what I can understand of the data presented, the flow has a pretty annual transition, peaking around May and June, and having a stagnant section in the months between. The flow has changed with time, it's highest recorded in the later months of 2015, indicating a heavier rainfall or water accumulation in the river for that year. But it also shows dips in the data where the flow was in a negative rate, these could indicate a drier or dorughted year in terms of precipiation. 
+
+From what I understand from class and my other courses, the trend component is measuring the average of flow as it spans over the years, showing fluctuation from years prior as compared to the decrease we have now. The seasonal component shows the consistent peak that occurs from March to May as water is changing in it's physical state and moving down through the watershed into the Poudre River.
 
 
 ## **Submission:**
